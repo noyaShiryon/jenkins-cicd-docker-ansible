@@ -1,12 +1,17 @@
 ---
-# Deploy application using Docker on app-server
-- name: Deploy application
+# Deploy selected service using Docker on app-server
+- name: Deploy {{ service }}
   hosts: app_servers
   become: true
 
   vars:
-    app_container_name: "my-app"
-    app_port: "8081"
+    # Port map - each service gets its own port
+    service_port_map:
+      service1: "8081"
+      service2: "8082"
+
+    # Resolve port based on selected service
+    app_port: "{{ service_port_map[service] }}"
 
   tasks:
     # Pull the latest Docker image from DockerHub
@@ -15,12 +20,12 @@
 
     # Stop existing container if running
     - name: Stop existing container
-      shell: docker stop {{ app_container_name }} || true
+      shell: docker stop {{ service }} || true
 
     # Remove existing container
     - name: Remove existing container
-      shell: docker rm {{ app_container_name }} || true
+      shell: docker rm {{ service }} || true
 
-    # Run new container with the updated image
+    # Run new container on the correct port
     - name: Run new container
-      shell: docker run -d --name {{ app_container_name }} -p {{ app_port }}:80 {{ image_name }}
+      shell: docker run -d --name {{ service }} -p {{ app_port }}:80 {{ image_name }}
