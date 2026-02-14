@@ -41,7 +41,7 @@ pipeline {
         stage('Deploy with Ansible') {
             steps {
                 echo "Deploying with Ansible..."
-                sh 'ansible-playbook -i inventory.ini deploy-playbook.yml'
+                sh 'ansible-playbook -i inventory.ini deploy-playbook.yml --extra-vars "image_name=${FULL_IMAGE_NAME}"'
             }
         }
     }
