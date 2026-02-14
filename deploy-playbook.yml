@@ -1,0 +1,26 @@
+---
+# Deploy application using Docker on app-server
+- name: Deploy application
+  hosts: app_servers
+  become: true
+
+  vars:
+    app_container_name: "my-app"
+    app_port: "8081"
+
+  tasks:
+    # Pull the latest Docker image from DockerHub
+    - name: Pull Docker image
+      shell: docker pull {{ image_name }}
+
+    # Stop existing container if running
+    - name: Stop existing container
+      shell: docker stop {{ app_container_name }} || true
+
+    # Remove existing container
+    - name: Remove existing container
+      shell: docker rm {{ app_container_name }} || true
+
+    # Run new container with the updated image
+    - name: Run new container
+      shell: docker run -d --name {{ app_container_name }} -p {{ app_port }}:80 {{ image_name }}
